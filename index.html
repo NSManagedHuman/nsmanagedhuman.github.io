@@ -8,18 +8,29 @@
 </head>
 <body>
     <div class="window">
+        <div class="resize-handle n"></div>
+        <div class="resize-handle s"></div>
+        <div class="resize-handle e"></div>
+        <div class="resize-handle w"></div>
+        <div class="resize-handle ne"></div>
+        <div class="resize-handle nw"></div>
+        <div class="resize-handle se"></div>
+        <div class="resize-handle sw"></div>
         <div class="window-header">
             <div class="window-buttons">
                 <div class="window-button close"></div>
                 <div class="window-button minimize"></div>
                 <div class="window-button maximize"></div>
             </div>
+            <button class="header-back-button" id="headerBackButton" style="display: none;">
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M15 18L9 12L15 6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="window-title">Welcome.swift</div>
         </div>
         <div class="editor">
             <div id="welcomeScreen">
-                <div class="center-screen">
-                    <img src="logo.png" alt="dannyharris.eu" width="150" height="150">
-                </div>
                 <div class="line">
                     <div class="line-number">1</div>
                     <div class="line-content comment"></div>
@@ -43,20 +54,11 @@
                     </div>
                 </div>
                 <div class="definition-bubble" id="definitionBubble">
-                    Jump to definition
-                </div>
-                <div class="button-container">
-                    <button class="button" id="continueButton" style="display: none;">Continue</button>
+                    Jump to Definition
                 </div>
             </div>
 
             <div id="definitionScreen">
-                <button class="back-button">
-                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M15 18L9 12L15 6" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Back
-                </button>
                 <div id="codeContent"></div>
                 <div class="button-container">
                     <button class="button" id="viewProjectsButton" style="display: none;">View Projects</button>
@@ -64,12 +66,6 @@
             </div>
 
             <div id="projectsScreen">
-                <button class="back-button">
-                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M15 18L9 12L15 6" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Back
-                </button>
                 <div id="projectContent">
                     <div class="project-navigation">
                         <button class="nav-button" id="prevProject">←</button>
@@ -80,6 +76,44 @@
             </div>
         </div>
     </div>
+
+    <div class="simulator-window closed">
+        <div class="resize-handle n"></div>
+        <div class="resize-handle s"></div>
+        <div class="resize-handle e"></div>
+        <div class="resize-handle w"></div>
+        <div class="resize-handle ne"></div>
+        <div class="resize-handle nw"></div>
+        <div class="resize-handle se"></div>
+        <div class="resize-handle sw"></div>
+        <div class="simulator-header">
+            <div class="window-buttons">
+                <div class="window-button close"></div>
+                <div class="window-button minimize"></div>
+                <div class="window-button maximize"></div>
+            </div>
+        </div>
+        <div class="simulator-content">
+            <div class="iphone-frame">
+                <img src="i17p-frame.png" alt="iPhone Frame" class="frame-image">
+                <div class="simulator-screen"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dock">
+        <div class="dock-container">
+            <div class="dock-app" data-app="portfolio">
+                <img src="logo.png" alt="Portfolio" class="dock-icon">
+                <div class="dock-dot"></div>
+            </div>
+            <div class="dock-app" data-app="simulator">
+                <img src="sim-icon.png" alt="Simulator" class="dock-icon">
+                <div class="dock-dot"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

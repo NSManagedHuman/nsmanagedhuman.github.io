@@ -6,21 +6,51 @@ body {
     color: #E5E5E5;
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding-top: 20px;
 }
 
 .window {
-    width: 100%;
-    max-width: 800px;
-    margin: 20px;
+    width: 800px;
+    max-width: 90vw;
+    height: 600px;
     background-color: #1E1E1E;
     border: 1px solid #3E3E42;
     border-radius: 6px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none;
+    position: absolute;
+    min-width: 400px;
+    min-height: 300px;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.window.maximized .resize-handle {
+    display: none;
+}
+
+.window.minimized {
+    display: none;
+}
+
+.window.minimizing {
+    transition: none;
+    pointer-events: none;
+}
+
+.window.restoring {
+    transition: none;
+    pointer-events: none;
+}
+
+.window.closed {
+    display: none;
 }
 
 .center-screen {
@@ -38,17 +68,35 @@ body {
     border-bottom: 1px solid #3E3E42;
     display: flex;
     align-items: center;
+    cursor: move;
+    user-select: none;
+    justify-content: center;
+    position: relative;
 }
 
 .window-buttons {
     display: flex;
     gap: 8px;
+    position: absolute;
+    left: 12px;
+}
+
+.window-title {
+    font-size: 13px;
+    color: #CCCCCC;
+    font-weight: normal;
 }
 
 .window-button {
     width: 12px;
     height: 12px;
     border-radius: 50%;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.window-button:hover {
+    opacity: 0.8;
 }
 
 .close { background-color: #FF5F56; }
@@ -58,8 +106,26 @@ body {
 .editor {
     position: relative;
     flex: 1;
-    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 20px 20px 40px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.editor::-webkit-scrollbar {
+    width: 12px;
+}
+
+.editor::-webkit-scrollbar-track {
+    background: #1E1E1E;
+}
+
+.editor::-webkit-scrollbar-thumb {
+    background: #3E3E42;
+    border-radius: 6px;
+}
+
+.editor::-webkit-scrollbar-thumb:hover {
+    background: #4E4E52;
 }
 
 .line {
@@ -119,48 +185,72 @@ body {
 .definition-bubble {
     position: absolute;
     background-color: #2D2D30;
-    padding: 8px 12px;
+    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
     display: none;
-    z-index: 2;
-    font-size: 14px;
+    z-index: 1000;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid #3E3E42;
+    user-select: none;
 }
 
-.definition-bubble::after {
-    content: '';
+.definition-bubble:hover {
+    background-color: #3E3E42;
+}
+
+.presentMyself {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: #4B9EF9;
+    text-underline-offset: 2px;
+}
+
+/* Typing cursor */
+.typing-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 18px;
+    background-color: #E5E5E5;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    50.01%, 100% {
+        opacity: 0;
+    }
+}
+
+.header-back-button {
     position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid #2D2D30;
-}
-
-.back-button {
-    color: #4B9EF9;
+    left: 80px;
     background: none;
     border: none;
     cursor: pointer;
-    font-family: inherit;
-    padding: 8px 0;
+    padding: 4px;
     display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    font-size: 14px;
-    line-height: 1;
+    align-items: center;
+    color: #CCCCCC;
+    transition: color 0.2s;
 }
 
-.back-button:hover {
-    color: #6DB3FF;
+.header-back-button:hover {
+    color: #E5E5E5;
 }
 
-.chevron {
+.header-back-button .chevron {
     width: 14px;
     height: 14px;
-    transform: translateY(2px);
-    stroke-width: 2.5;
+    stroke-width: 2;
     pointer-events: none;
 }
 
@@ -207,4 +297,231 @@ body {
 .code {
     position: relative;
     display: inline-block;
+}
+
+/* Resize handles */
+.resize-handle {
+    position: absolute;
+    z-index: 10;
+}
+
+.resize-handle.n {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    cursor: ns-resize;
+}
+
+.resize-handle.s {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    cursor: ns-resize;
+}
+
+.resize-handle.e {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    cursor: ew-resize;
+}
+
+.resize-handle.w {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    cursor: ew-resize;
+}
+
+.resize-handle.ne {
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.nw {
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    cursor: nwse-resize;
+}
+
+.resize-handle.se {
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    cursor: nwse-resize;
+}
+
+.resize-handle.sw {
+    bottom: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    cursor: nesw-resize;
+}
+
+/* Dock styles */
+.dock {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 8px;
+}
+
+.dock-container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dock-app {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.dock-app:hover {
+    transform: translateY(-10px) scale(1.1);
+}
+
+.dock-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.dock-app:hover .dock-icon {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dock-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.dock-dot.active {
+    opacity: 1;
+}
+
+/* Simulator window styles */
+.simulator-window {
+    position: absolute;
+    top: 50px;
+    left: 60%;
+    transform: translateX(-50%);
+    width: 400px;
+    background-color: #1E1E1E;
+    border: 1px solid #3E3E42;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: none;
+    min-width: 300px;
+    min-height: 400px;
+    z-index: 1;
+}
+
+.simulator-window.maximized .resize-handle {
+    display: none;
+}
+
+.simulator-window.minimized {
+    display: none;
+}
+
+.simulator-window.minimizing {
+    transition: none;
+    pointer-events: none;
+}
+
+.simulator-window.restoring {
+    transition: none;
+    pointer-events: none;
+}
+
+.simulator-window.closed {
+    display: none;
+}
+
+.simulator-header {
+    background-color: #252526;
+    padding: 8px 12px;
+    border-bottom: 1px solid #3E3E42;
+    display: flex;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    justify-content: center;
+    position: relative;
+}
+
+.simulator-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #1E1E1E;
+    overflow: auto;
+}
+
+.iphone-frame {
+    position: relative;
+    width: 100%;
+    height: auto;
+    max-width: 360px;
+}
+
+.frame-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+}
+
+.simulator-screen {
+    position: absolute;
+    background-color: white;
+    /* Adjust these percentages to match your specific iPhone frame image */
+    /* These need to align perfectly with the screen area in the frame */
+    top: 1.8%;
+    left: 4.5%;
+    right: 4.5%;
+    bottom: 1.8%;
+    border-radius: 9.5%;
+    z-index: 1;
+    overflow: hidden;
 }
