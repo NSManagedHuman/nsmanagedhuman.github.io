@@ -1,0 +1,5 @@
+# Server PID file
+.server.pid
+
+# macOS
+.DS_Store

@@ -28,6 +28,14 @@
                 </svg>
             </button>
             <div class="window-title">Welcome.swift</div>
+            <button class="header-play-button" id="headerPlayButton" style="display: none;">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M5 3L19 12L5 21V3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="stop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                    <rect x="6" y="6" width="12" height="12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
         </div>
         <div class="editor">
             <div id="welcomeScreen">
@@ -77,27 +85,28 @@
         </div>
     </div>
 
-    <div class="simulator-window closed">
-        <div class="resize-handle n"></div>
-        <div class="resize-handle s"></div>
-        <div class="resize-handle e"></div>
-        <div class="resize-handle w"></div>
-        <div class="resize-handle ne"></div>
-        <div class="resize-handle nw"></div>
-        <div class="resize-handle se"></div>
-        <div class="resize-handle sw"></div>
+    <div class="simulator-container closed">
         <div class="simulator-header">
             <div class="window-buttons">
                 <div class="window-button close"></div>
                 <div class="window-button minimize"></div>
                 <div class="window-button maximize"></div>
             </div>
+            <div class="simulator-title">iPhone 17 Pro</div>
         </div>
-        <div class="simulator-content">
-            <div class="iphone-frame">
-                <img src="i17p-frame.png" alt="iPhone Frame" class="frame-image">
-                <div class="simulator-screen"></div>
+        <div class="simulator-frame">
+            <div class="simulator-resize-handle ne"></div>
+            <div class="simulator-resize-handle nw"></div>
+            <div class="simulator-resize-handle se"></div>
+            <div class="simulator-resize-handle sw"></div>
+            <div class="simulator-screen">
+                <div class="default-screen">
+                    <img src="rainbow-logo.gif" alt="Default Logo" class="default-logo">
+                </div>
+                <div class="image-gallery" style="display: none;">
+                </div>
             </div>
+            <img src="i17p-frame.png" alt="iPhone 17 Pro" class="frame-overlay">
         </div>
     </div>
 

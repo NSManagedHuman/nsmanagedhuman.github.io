@@ -1,0 +1,8 @@
+[
+    {
+        "name": "El Sellote",
+        "description": "An iOS app for TUI Group that revolutionizes hotel sales by putting powerful booking tools directly in sales representatives' hands. Built with Swift and UIKit, Sellote enables real-time hotel inventory management, pricing, and bookings while on the go. The app features offline capability, dynamic pricing integration, and a streamlined UX designed for fast-paced sales environments.",
+        "images": ["sellote-main.png"]
+    }
+    
+]

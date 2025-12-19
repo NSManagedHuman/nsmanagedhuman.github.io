@@ -254,6 +254,31 @@ body {
     pointer-events: none;
 }
 
+.header-play-button {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: inline-flex;
+    align-items: center;
+    color: #CCCCCC;
+    transition: color 0.2s;
+}
+
+.header-play-button:hover {
+    color: #E5E5E5;
+}
+
+.header-play-button .play-icon,
+.header-play-button .stop-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+    pointer-events: none;
+}
+
 #welcomeScreen,
 #definitionScreen,
 #projectsScreen {
@@ -433,95 +458,167 @@ body {
     opacity: 1;
 }
 
-/* Simulator window styles */
-.simulator-window {
+/* Simulator styles - mimics macOS iPhone Simulator */
+.simulator-container {
     position: absolute;
     top: 50px;
     left: 60%;
     transform: translateX(-50%);
-    width: 400px;
-    background-color: #1E1E1E;
-    border: 1px solid #3E3E42;
-    border-radius: 6px;
-    overflow: hidden;
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    transition: none;
-    min-width: 300px;
-    min-height: 400px;
-    z-index: 1;
+    align-items: center;
 }
 
-.simulator-window.maximized .resize-handle {
+.simulator-container.closed {
     display: none;
 }
 
-.simulator-window.minimized {
+.simulator-container.minimized {
     display: none;
 }
 
-.simulator-window.minimizing {
+.simulator-container.minimizing {
     transition: none;
     pointer-events: none;
 }
 
-.simulator-window.restoring {
+.simulator-container.restoring {
     transition: none;
     pointer-events: none;
-}
-
-.simulator-window.closed {
-    display: none;
 }
 
 .simulator-header {
-    background-color: #252526;
-    padding: 8px 12px;
-    border-bottom: 1px solid #3E3E42;
+    background-color: rgba(37, 37, 38, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid #3E3E42;
+    border-radius: 6px;
+    padding: 6px 12px;
     display: flex;
     align-items: center;
+    justify-content: center;
     cursor: move;
     user-select: none;
-    justify-content: center;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    width: 430px;
     position: relative;
 }
 
-.simulator-content {
-    flex: 1;
+.simulator-title {
+    font-size: 13px;
+    color: #CCCCCC;
+    font-weight: normal;
+}
+
+.simulator-frame {
+    position: relative;
+    width: 430px;
+    height: 880px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background-color: #1E1E1E;
-    overflow: auto;
-}
-
-.iphone-frame {
-    position: relative;
-    width: 100%;
-    height: auto;
-    max-width: 360px;
-}
-
-.frame-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    position: relative;
-    z-index: 2;
-    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
 }
 
 .simulator-screen {
     position: absolute;
-    background-color: white;
-    /* Adjust these percentages to match your specific iPhone frame image */
-    /* These need to align perfectly with the screen area in the frame */
     top: 1.8%;
-    left: 4.5%;
-    right: 4.5%;
-    bottom: 1.8%;
-    border-radius: 9.5%;
-    z-index: 1;
+    left: 3.7%;
+    width: 92.6%;
+    height: 96.8%;
+    border-radius: 50px;
     overflow: hidden;
+    z-index: 1;
+}
+
+.default-screen {
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.default-logo {
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+}
+
+.image-gallery {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    background: white;
+}
+
+.gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.gallery-image.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.frame-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.6));
+}
+
+/* Simulator resize handles */
+.simulator-resize-handle {
+    position: absolute;
+    z-index: 10;
+}
+
+.simulator-resize-handle.ne {
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: nesw-resize;
+}
+
+.simulator-resize-handle.nw {
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    cursor: nwse-resize;
+}
+
+.simulator-resize-handle.se {
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: nwse-resize;
+}
+
+.simulator-resize-handle.sw {
+    bottom: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    cursor: nesw-resize;
 }

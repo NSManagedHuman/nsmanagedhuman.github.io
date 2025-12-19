@@ -1,14 +1,22 @@
-const projects = [
-    {
-        name: "Work in progress, for now just a lorem ipsum",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas consequat faucibus odio, in dapibus purus tincidunt ut. Donec consectetur commodo lorem, sed tincidunt dui dictum at. Aliquam blandit convallis iaculis. In nunc arcu, convallis eu ex ut, pellentesque laoreet elit."
-    }
-];
-
+let projects = [];
 let currentProjectIndex = 0;
 
 // Navigation stack to track screen history
 let navigationStack = ['welcomeScreen'];
+
+// Track whether project content is playing in simulator
+let isProjectPlaying = false;
+
+// Load projects from JSON file
+async function loadProjects() {
+    try {
+        const response = await fetch('projects.json');
+        projects = await response.json();
+    } catch (error) {
+        console.error('Failed to load projects:', error);
+        projects = [];
+    }
+}
 
 function typeText(element, text, delay = 20, cursor = null) { // Increased typing speed
     return new Promise((resolve) => {
@@ -69,11 +77,26 @@ function showScreen(screenId) {
 
     // Show/hide back button based on screen
     const backButton = document.getElementById('headerBackButton');
+    const playButton = document.getElementById('headerPlayButton');
+
     if (screenId === 'welcomeScreen') {
         backButton.style.display = 'none';
+        playButton.style.display = 'none';
+        isProjectPlaying = false;
+    } else if (screenId === 'projectsScreen') {
+        backButton.style.display = 'inline-flex';
+        playButton.style.display = 'inline-flex';
+        // Reset to play icon when navigating to projects
+        isProjectPlaying = false;
+        updatePlayButtonIcon();
     } else {
         backButton.style.display = 'inline-flex';
+        playButton.style.display = 'none';
+        isProjectPlaying = false;
     }
+
+    // Update simulator state when screen changes
+    updateSimulatorState();
 }
 
 async function typeInitialScreen() {
@@ -289,7 +312,72 @@ async function typeDefinition() {
     }
 }
 
+function updatePlayButtonIcon() {
+    const playIcon = document.querySelector('.play-icon');
+    const stopIcon = document.querySelector('.stop-icon');
+
+    if (isProjectPlaying) {
+        playIcon.style.display = 'none';
+        stopIcon.style.display = 'block';
+    } else {
+        playIcon.style.display = 'block';
+        stopIcon.style.display = 'none';
+    }
+}
+
+function updateSimulatorState() {
+    const defaultScreen = document.querySelector('.default-screen');
+    const imageGallery = document.querySelector('.image-gallery');
+    const currentScreen = navigationStack[navigationStack.length - 1];
+
+    // Check if we should show project content or rainbow logo
+    // Show project content only if: on projects screen AND playing AND has images
+    if (currentScreen === 'projectsScreen' &&
+        isProjectPlaying &&
+        projects &&
+        projects.length > 0 &&
+        projects[currentProjectIndex] &&
+        projects[currentProjectIndex].images &&
+        projects[currentProjectIndex].images.length > 0) {
+        // Show project images
+        defaultScreen.style.display = 'none';
+        imageGallery.style.display = 'block';
+
+        // Clear and populate gallery with project images
+        imageGallery.innerHTML = '';
+        projects[currentProjectIndex].images.forEach((imageSrc, index) => {
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.alt = 'App Screenshot';
+            img.className = 'gallery-image';
+            if (index === 0) img.classList.add('active');
+            imageGallery.appendChild(img);
+        });
+
+        // Reset gallery index
+        currentImageIndex = 0;
+    } else {
+        // Show default rainbow logo
+        defaultScreen.style.display = 'flex';
+        imageGallery.style.display = 'none';
+    }
+}
+
 function updateProject() {
+    // Check if projects are loaded
+    if (!projects || projects.length === 0) {
+        const content = document.getElementById('currentProject');
+        content.innerHTML = `
+            <div class="line">
+                <div class="line-number">1</div>
+                <div class="line-content">
+                    <span class="comment">// Loading projects...</span>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
     const project = projects[currentProjectIndex];
     const content = document.getElementById('currentProject');
     content.innerHTML = `
@@ -321,6 +409,13 @@ function updateProject() {
 
     document.getElementById('prevProject').disabled = currentProjectIndex === 0;
     document.getElementById('nextProject').disabled = currentProjectIndex === projects.length - 1;
+
+    // Reset playing state when changing projects
+    isProjectPlaying = false;
+    updatePlayButtonIcon();
+
+    // Update simulator state when project changes
+    updateSimulatorState();
 }
 
 // Show definition bubble near cursor
@@ -389,6 +484,30 @@ document.getElementById('headerBackButton').addEventListener('click', () => {
             document.getElementById('definitionBubble').style.display = 'none';
         }
     }
+});
+
+// Header play button handler
+document.getElementById('headerPlayButton').addEventListener('click', () => {
+    // Toggle playing state
+    isProjectPlaying = !isProjectPlaying;
+    updatePlayButtonIcon();
+
+    // If starting to play, ensure simulator is visible
+    if (isProjectPlaying) {
+        if (simulatorWindow.classList.contains('closed')) {
+            // Open the simulator
+            simulatorWindow.classList.remove('closed');
+            updateSimulatorDockIndicator();
+            bringToFront(simulatorWindow);
+        } else if (simulatorWindow.classList.contains('minimized')) {
+            // Restore if minimized
+            genieRestoreSimulator();
+            bringToFront(simulatorWindow);
+        }
+    }
+
+    // Update the simulator content
+    updateSimulatorState();
 });
 
 // Traffic light button functionality
@@ -873,8 +992,8 @@ function constrainWindowToViewport() {
 // Handle browser resize
 window.addEventListener('resize', constrainWindowToViewport);
 
-// Simulator window functionality
-const simulatorWindow = document.querySelector('.simulator-window');
+// Simulator functionality
+const simulatorWindow = document.querySelector('.simulator-container');
 let storedSimulatorPosition = null;
 
 // Get simulator dock elements
@@ -984,6 +1103,7 @@ simulatorDockApp.addEventListener('click', () => {
         simulatorWindow.classList.remove('closed');
         updateSimulatorDockIndicator();
         bringToFront(simulatorWindow);
+        updateSimulatorState();
     } else if (simulatorWindow.classList.contains('minimized')) {
         genieRestoreSimulator();
         bringToFront(simulatorWindow);
@@ -1051,30 +1171,28 @@ function stopSimulatorDrag() {
     isSimulatorDragging = false;
 }
 
-// Simulator window resize functionality
+// Simulator resize functionality with aspect ratio preservation
+const simulatorFrame = simulatorWindow.querySelector('.simulator-frame');
+const simulatorResizeHandles = simulatorFrame.querySelectorAll('.simulator-resize-handle');
 let isSimulatorResizing = false;
-let simulatorResizeDirection = null;
+let simulatorResizeDirection = '';
 let simulatorResizeStartX, simulatorResizeStartY;
-let simulatorResizeStartWidth, simulatorResizeStartHeight, simulatorResizeStartLeft, simulatorResizeStartTop;
+let simulatorResizeStartWidth, simulatorResizeStartHeight;
+const SIMULATOR_ASPECT_RATIO = 430 / 880; // iPhone 17 Pro aspect ratio
 
-const simulatorResizeHandles = simulatorWindow.querySelectorAll('.resize-handle');
-simulatorResizeHandles.forEach(handle => {
-    handle.addEventListener('mousedown', (e) => {
-        isSimulatorResizing = true;
-        simulatorResizeDirection = handle.classList[1]; // n, s, e, w, ne, nw, se, sw
-        simulatorResizeStartX = e.clientX;
-        simulatorResizeStartY = e.clientY;
+function initSimulatorResize(e, direction) {
+    isSimulatorResizing = true;
+    simulatorResizeDirection = direction;
+    simulatorResizeStartX = e.clientX;
+    simulatorResizeStartY = e.clientY;
 
-        const rect = simulatorWindow.getBoundingClientRect();
-        simulatorResizeStartWidth = rect.width;
-        simulatorResizeStartHeight = rect.height;
-        simulatorResizeStartLeft = rect.left;
-        simulatorResizeStartTop = rect.top;
+    const frameRect = simulatorFrame.getBoundingClientRect();
+    simulatorResizeStartWidth = frameRect.width;
+    simulatorResizeStartHeight = frameRect.height;
 
-        e.preventDefault();
-        e.stopPropagation();
-    });
-});
+    e.preventDefault();
+    e.stopPropagation();
+}
 
 function doSimulatorResize(e) {
     if (!isSimulatorResizing) return;
@@ -1084,57 +1202,135 @@ function doSimulatorResize(e) {
 
     let newWidth = simulatorResizeStartWidth;
     let newHeight = simulatorResizeStartHeight;
-    let newLeft = simulatorResizeStartLeft;
-    let newTop = simulatorResizeStartTop;
 
-    const minWidth = 300;
-    const minHeight = 400;
-
-    // Handle horizontal resizing
+    // Calculate new dimensions based on direction
     if (simulatorResizeDirection.includes('e')) {
-        newWidth = Math.max(minWidth, simulatorResizeStartWidth + deltaX);
+        newWidth = simulatorResizeStartWidth + deltaX;
     } else if (simulatorResizeDirection.includes('w')) {
-        const potentialWidth = simulatorResizeStartWidth - deltaX;
-        if (potentialWidth >= minWidth) {
-            newWidth = potentialWidth;
-            newLeft = simulatorResizeStartLeft + deltaX;
-        }
+        newWidth = simulatorResizeStartWidth - deltaX;
     }
 
-    // Handle vertical resizing
     if (simulatorResizeDirection.includes('s')) {
-        newHeight = Math.max(minHeight, simulatorResizeStartHeight + deltaY);
+        newHeight = simulatorResizeStartHeight + deltaY;
     } else if (simulatorResizeDirection.includes('n')) {
-        const potentialHeight = simulatorResizeStartHeight - deltaY;
-        if (potentialHeight >= minHeight) {
-            newHeight = potentialHeight;
-            newTop = simulatorResizeStartTop + deltaY;
-        }
+        newHeight = simulatorResizeStartHeight - deltaY;
     }
 
-    // Constrain to viewport
-    const dock = document.querySelector('.dock');
-    const dockRect = dock.getBoundingClientRect();
-    const dockTop = dockRect.top;
+    // Determine which dimension to prioritize based on which changed more
+    const widthChange = Math.abs(newWidth - simulatorResizeStartWidth);
+    const heightChange = Math.abs(newHeight - simulatorResizeStartHeight);
 
-    const maxWidth = window.innerWidth - newLeft;
-    const maxHeight = dockTop - newTop - 20;
+    if (widthChange > heightChange) {
+        // Width changed more, calculate height from width
+        newHeight = newWidth / SIMULATOR_ASPECT_RATIO;
+    } else {
+        // Height changed more, calculate width from height
+        newWidth = newHeight * SIMULATOR_ASPECT_RATIO;
+    }
 
-    newWidth = Math.min(newWidth, maxWidth);
-    newHeight = Math.min(newHeight, maxHeight);
+    // Apply minimum constraints
+    const minWidth = 215; // Half of original
+    const minHeight = 440;
 
-    // Apply new dimensions
-    simulatorWindow.style.width = newWidth + 'px';
-    simulatorWindow.style.height = newHeight + 'px';
-    simulatorWindow.style.left = newLeft + 'px';
-    simulatorWindow.style.top = newTop + 'px';
+    if (newWidth < minWidth) {
+        newWidth = minWidth;
+        newHeight = newWidth / SIMULATOR_ASPECT_RATIO;
+    }
+    if (newHeight < minHeight) {
+        newHeight = minHeight;
+        newWidth = newHeight * SIMULATOR_ASPECT_RATIO;
+    }
+
+    // Apply new size
+    simulatorFrame.style.width = newWidth + 'px';
+    simulatorFrame.style.height = newHeight + 'px';
+
+    // Update header width to match
+    const simulatorHeader = simulatorWindow.querySelector('.simulator-header');
+    simulatorHeader.style.width = newWidth + 'px';
 }
 
 function stopSimulatorResize() {
-    if (isSimulatorResizing) {
-        isSimulatorResizing = false;
-        simulatorResizeDirection = null;
+    isSimulatorResizing = false;
+    simulatorResizeDirection = '';
+}
+
+// Add event listeners to simulator resize handles
+simulatorResizeHandles.forEach(handle => {
+    handle.addEventListener('mousedown', (e) => {
+        const direction = Array.from(handle.classList).find(c => c !== 'simulator-resize-handle');
+        initSimulatorResize(e, direction);
+    });
+});
+
+// Image gallery swipe functionality
+const imageGallery = document.querySelector('.image-gallery');
+let currentImageIndex = 0;
+let swipeStartX = 0;
+let swipeStartY = 0;
+let isSwiping = false;
+
+imageGallery.addEventListener('mousedown', (e) => {
+    isSwiping = true;
+    swipeStartX = e.clientX;
+    swipeStartY = e.clientY;
+    e.preventDefault();
+});
+
+imageGallery.addEventListener('touchstart', (e) => {
+    isSwiping = true;
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+
+function handleSwipeEnd(endX, endY) {
+    if (!isSwiping) return;
+    isSwiping = false;
+
+    const deltaX = endX - swipeStartX;
+    const deltaY = endY - swipeStartY;
+
+    // Get current gallery images dynamically
+    const galleryImages = imageGallery.querySelectorAll('.gallery-image');
+
+    // Only trigger swipe if horizontal movement is greater than vertical
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+        if (deltaX > 0 && currentImageIndex > 0) {
+            // Swipe right - previous image
+            currentImageIndex--;
+            updateGalleryImage();
+        } else if (deltaX < 0 && currentImageIndex < galleryImages.length - 1) {
+            // Swipe left - next image
+            currentImageIndex++;
+            updateGalleryImage();
+        }
     }
+}
+
+imageGallery.addEventListener('mouseup', (e) => {
+    handleSwipeEnd(e.clientX, e.clientY);
+});
+
+imageGallery.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length > 0) {
+        handleSwipeEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    }
+});
+
+imageGallery.addEventListener('mouseleave', () => {
+    isSwiping = false;
+});
+
+function updateGalleryImage() {
+    // Get current gallery images dynamically
+    const galleryImages = imageGallery.querySelectorAll('.gallery-image');
+    galleryImages.forEach((img, index) => {
+        if (index === currentImageIndex) {
+            img.classList.add('active');
+        } else {
+            img.classList.remove('active');
+        }
+    });
 }
 
 // Simulator window buttons
@@ -1144,10 +1340,17 @@ const simulatorMinimizeBtn = simulatorWindow.querySelector('.window-button.minim
 simulatorCloseBtn.addEventListener('click', () => {
     simulatorWindow.classList.add('closed');
     updateSimulatorDockIndicator();
+    updateSimulatorState();
 });
 
 simulatorMinimizeBtn.addEventListener('click', () => {
     genieMinimizeSimulator();
 });
 
-typeInitialScreen();
+// Initialize the application
+async function init() {
+    await loadProjects();
+    typeInitialScreen();
+}
+
+init();
