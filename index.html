@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniel Harris - Developer</title>
+  <script type="module" crossorigin src="/assets/index-B4EwRmgp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BOqPY8Nn.css">
+</head>
+<body>
+    <div class="window">
+        <div class="resize-handle n"></div>
+        <div class="resize-handle s"></div>
+        <div class="resize-handle e"></div>
+        <div class="resize-handle w"></div>
+        <div class="resize-handle ne"></div>
+        <div class="resize-handle nw"></div>
+        <div class="resize-handle se"></div>
+        <div class="resize-handle sw"></div>
+        <div class="window-header">
+            <div class="window-buttons">
+                <div class="window-button close"></div>
+                <div class="window-button minimize"></div>
+                <div class="window-button maximize"></div>
+            </div>
+            <button class="header-back-button" id="headerBackButton" style="display: none;">
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M15 18L9 12L15 6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="window-title">Welcome.swift</div>
+            <button class="header-play-button" id="headerPlayButton" style="display: none;">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M5 3L19 12L5 21V3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="stop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                    <rect x="6" y="6" width="12" height="12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="editor">
+            <div id="welcomeScreen">
+                <div class="line">
+                    <div class="line-number">1</div>
+                    <div class="line-content comment"></div>
+                </div>
+                <div class="line">
+                    <div class="line-number">2</div>
+                    <div class="line-content comment"></div>
+                </div>
+                <div class="line">
+                    <div class="line-number">3</div>
+                    <div class="line-content comment"></div>
+                </div>
+                <div class="line">
+                    <div class="line-number">4</div>
+                    <div class="line-content comment"></div>
+                </div>
+                <div class="line">
+                    <div class="line-number">5</div>
+                    <div class="line-content">
+                        <span class="code"></span>
+                    </div>
+                </div>
+                <div class="definition-bubble" id="definitionBubble">
+                    Jump to Definition
+                </div>
+            </div>
+
+            <div id="definitionScreen">
+                <div id="codeContent"></div>
+                <div class="button-container">
+                    <button class="button" id="viewProjectsButton" style="display: none;">View Projects</button>
+                </div>
+            </div>
+
+            <div id="projectsScreen">
+                <div id="projectContent">
+                    <div class="project-navigation">
+                        <button class="nav-button" id="prevProject">←</button>
+                        <div id="currentProject"></div>
+                        <button class="nav-button" id="nextProject">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="simulator-container closed">
+        <div class="simulator-header">
+            <div class="window-buttons">
+                <div class="window-button close"></div>
+                <div class="window-button minimize"></div>
+                <div class="window-button maximize"></div>
+            </div>
+            <div class="simulator-title">iPhone 17 Pro</div>
+        </div>
+        <div class="simulator-frame">
+            <div class="simulator-resize-handle ne"></div>
+            <div class="simulator-resize-handle nw"></div>
+            <div class="simulator-resize-handle se"></div>
+            <div class="simulator-resize-handle sw"></div>
+            <div class="simulator-screen">
+                <div class="default-screen">
+                    <img src="/rainbow-logo.gif" alt="Default Logo" class="default-logo">
+                </div>
+                <div class="image-gallery" style="display: none;">
+                </div>
+            </div>
+            <img src="/i17p-frame.png" alt="Simulator" class="frame-overlay">
+        </div>
+    </div>
+
+    <div class="dock">
+        <div class="dock-container">
+            <div class="dock-app" data-app="portfolio">
+                <img src="/logo.png" alt="Portfolio" class="dock-icon">
+                <div class="dock-dot"></div>
+            </div>
+            <div class="dock-app" data-app="simulator">
+                <img src="/sim-icon.png" alt="Simulator" class="dock-icon">
+                <div class="dock-dot"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
